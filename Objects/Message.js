@@ -18,11 +18,15 @@ class Message {
 		this.message = props.message;
 		this.route = props.route;
 		this.sender = props.sender;
+		if (!props.prefixes) {
+			props.prefixes = []
+		}
 	}
 	
 	send = (content) => {
 		this.route[this.sender](content)
 	}
+	
 }
 
 module.exports = Message;

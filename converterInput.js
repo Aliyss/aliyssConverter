@@ -39,8 +39,5 @@ exports.message = (ctx, _instance) => {
 			break;
 	}
 	
-	let message = new Message(props);
-	if (message.content === "!test") {
-		message.send("test")
-	}
+	return new Message(props);
 }

@@ -1,12 +1,4 @@
 
-let iterate = (obj, arr) => {
-	if (arr.length > 1) {
-		let x = arr.pop();
-		return iterate(obj[x], arr);
-	}
-	return obj[arr[0]];
-}
-
 class Message {
 	
 	constructor(props) {
@@ -16,15 +8,23 @@ class Message {
 		this.content = props.content;
 		this.type = props.type;
 		this.message = props.message;
-		this.route = props.route;
-		this.sender = props.sender;
-		if (!props.prefixes) {
-			props.prefixes = []
+		this.sender = props.sender ? props.sender : 'reply';
+		
+		if (props.route) {
+			this.route = props.route;
 		}
+		
 	}
 	
-	send = (content) => {
-		this.route[this.sender](content)
+	send = (content, options) => {
+		
+		if (this.route && typeof this.route === 'string') {
+			return this.message[this.route][this.sender](content)
+		} else if (this.route && typeof this.route === 'object') {
+			return this.route[this.sender](content, options)
+		}
+		
+		return this.message[this.sender](content)
 	}
 	
 }

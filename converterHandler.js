@@ -13,6 +13,9 @@ exports.embedToText = (content) => {
 		}
 
 		for (let i = 0; i < embed.fields.length; i++) {
+			if (embed.fields[i].name === "_\n_" && embed.fields[i].value === "_\n_") {
+				continue;
+			}
 			text += "\n" + embed.fields[i].name.trim().replace("_\n_", "");
 			text += "\n" + embed.fields[i].value.toString().trim().replace("_\n_", "") + "\n";
 		}
@@ -26,13 +29,17 @@ exports.embedToText = (content) => {
 
 		content = text;
 	} else {
-		//let text = content;
+		
+		let text = content;
 
-		//text = text.replace(/\*\*/g, "*");
-		//text = text.replace(/``/g, "```");
-		//text = text.replace(/````/g, "```");
+		text = text.replace(/\*\*/g, "*");
+		text = text.replace(/``/g, "```");
+		text = text.replace(/````/g, "```");
+		text = text.replace(/```py\n/g, "```");
+		text = text.replace(/```css\n/g, "```");
+		text = text.replace(/⠀/g, "");
 
-		//content = text
+		content = text
 	}
 	return content;
 }

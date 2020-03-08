@@ -8,7 +8,12 @@ class Message {
 		this.content = props.content;
 		this.type = props.type;
 		this.message = props.message;
+		this.createdTimestamp = props.createdTimestamp;
 		this.sender = props.sender ? props.sender : 'reply';
+		
+		if (props.quotedMessage) {
+			this.quotedMessage = props.quotedMessage
+		}
 		
 		if (props.route) {
 			this.route = props.route;

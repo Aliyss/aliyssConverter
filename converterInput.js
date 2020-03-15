@@ -1,17 +1,16 @@
-const { Message, Command } = require("./Objects")
+const { Message, Command, User } = require("./Objects")
 const converterHandler = require("./converterHandler");
 
-exports.message = async (ctx, _instanceType, repeat=true) => {
+exports.message = async (ctx, _instance, repeat=true) => {
 	let props = {
 		author: {},
 		channel: {},
 	}
 	
-	switch (_instanceType) {
+	switch (_instance.type) {
 		case 'whatsapp':
 			props.id = ctx.id.id;
-			props.author.id = ctx.author;
-			props.author.bot = false;
+			props.author = await this.user(await ctx.getContact(), _instance)
 			props.channel.id = ctx.id.remote;
 			props.content = ctx.body;
 			props.type = ctx.type;
@@ -19,13 +18,12 @@ exports.message = async (ctx, _instanceType, repeat=true) => {
 			props.createdTimestamp = ctx.timestamp;
 			if (ctx.hasQuotedMsg && repeat) {
 				let quoteElement = await ctx.getQuotedMessage();
-				props.quotedMessage = await this.message(quoteElement, _instanceType, false);
+				props.quotedMessage = await this.message(quoteElement, _instance, false);
 			}
 			break;
 		case 'discord':
 			props.id = ctx.id;
-			props.author.id = ctx.author.id;
-			props.author.bot = ctx.author.bot
+			props.author = await this.user(ctx.author, _instance)
 			props.channel.id = ctx.channel.id;
 			ctx.hasQuotedMsg = false
 			if (ctx.content.startsWith('> ') && repeat) {
@@ -52,13 +50,12 @@ exports.message = async (ctx, _instanceType, repeat=true) => {
 			props.createdTimestamp = ctx.createdTimestamp;
 			if (ctx.hasQuotedMsg && repeat) {
 				ctx.content = ctx.hasQuotedMsg.join('\n');
-				props.quotedMessage = await this.message(ctx, _instanceType, false);
+				props.quotedMessage = await this.message(ctx, _instance, false);
 			}
 			break;
 		case 'telegram':
 			props.id = ctx.message.message_id;
-			props.author.id = ctx.message.from.id;
-			props.author.bot = false;
+			props.author = await this.user(ctx.message.from, _instance)
 			props.channel.id = ctx.message.chat.id;
 			props.content = ctx.message.text;
 			props.type = 'text';
@@ -68,7 +65,7 @@ exports.message = async (ctx, _instanceType, repeat=true) => {
 			props.createdTimestamp = new Date().getTime();
 			if (ctx.message.reply_to_message && repeat) {
 				ctx.message.text = ctx.message.reply_to_message.text;
-				props.quotedMessage = await this.message(ctx, _instanceType, false);
+				props.quotedMessage = await this.message(ctx, _instance, false);
 			}
 			break;
 	}
@@ -78,13 +75,18 @@ exports.message = async (ctx, _instanceType, repeat=true) => {
 }
 
 exports.command = async (msg, _instance) => {
-	let message = await this.message(msg, _instance.type)
+	let message = await this.message(msg, _instance)
 	return new Command(message, _instance);
 }
 
 exports.convertDefault = (content, _instance) => {
 	if (!_instance.converterHandler) {
 		_instance.converterHandler = this.addConverterHandler(_instance.type)
+	}
+	
+	
+	if (content.command) {
+		content = content.command
 	}
 	
 	switch (_instance.converterHandler.returnType) {
@@ -111,4 +113,39 @@ exports.addConverterHandler = (_instanceType) => {
 	}
 	
 	return converterHandler
+}
+
+exports.user = async (user, _instance) => {
+	let props = {
+		context: {}
+	}
+	
+	switch (_instance.type) {
+		case 'whatsapp':
+			props.id = user.id._serialized;
+			props.bot = false;
+			props.author = user;
+			props.context.username = user.shortName || user.name
+			break;
+		case 'discord':
+			props.id = user.id;
+			props.bot = user.bot;
+			props.author = user;
+			props.context.username = user.username
+			break;
+		case 'telegram':
+			props.id = user.id;
+			props.bot = false;
+			props.author = user;
+			break;
+	}
+
+	if (_instance.users[props.id]) {
+		return _instance.users[props.id]
+	}
+	
+	const userCreated = new User(props);
+	_instance.users[props.id] = userCreated;
+	
+	return userCreated
 }

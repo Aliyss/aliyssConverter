@@ -1,5 +1,6 @@
 module.exports = {
 	Command: require("./Command"),
 	Message: require("./Message"),
-	User: require("./User")
+	User: require("./User"),
+	Channel: require("./Channel")
 }

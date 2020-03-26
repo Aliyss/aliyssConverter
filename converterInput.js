@@ -1,4 +1,4 @@
-const { Message, Command, User } = require("./Objects")
+const { Message, Command, User, Channel } = require("./Objects")
 const converterHandler = require("./converterHandler");
 
 exports.message = async (ctx, _instance, repeat=true) => {
@@ -11,7 +11,7 @@ exports.message = async (ctx, _instance, repeat=true) => {
 		case 'whatsapp':
 			props.id = ctx.id.id;
 			props.author = await this.user(await ctx.getContact(), _instance)
-			props.channel.id = ctx.id.remote;
+			props.channel = await this.channel(ctx, _instance)
 			props.content = ctx.body;
 			props.type = ctx.type;
 			props.message = ctx;
@@ -24,7 +24,7 @@ exports.message = async (ctx, _instance, repeat=true) => {
 		case 'discord':
 			props.id = ctx.id;
 			props.author = await this.user(ctx.author, _instance)
-			props.channel.id = ctx.channel.id;
+			props.channel = await this.channel(ctx.channel, _instance)
 			ctx.hasQuotedMsg = false
 			if (ctx.content.startsWith('> ') && repeat) {
 				ctx.hasQuotedMsg = [];
@@ -48,7 +48,7 @@ exports.message = async (ctx, _instance, repeat=true) => {
 			props.sender = 'send'
 			props.message = ctx
 			props.createdTimestamp = ctx.createdTimestamp;
-			if (ctx.hasQuotedMsg && repeat) {
+			if ((ctx.hasQuotedMsg || ctx.hasQuotedMsg.length > 0) && repeat) {
 				ctx.content = ctx.hasQuotedMsg.join('\n');
 				props.quotedMessage = await this.message(ctx, _instance, false);
 			}
@@ -56,7 +56,7 @@ exports.message = async (ctx, _instance, repeat=true) => {
 		case 'telegram':
 			props.id = ctx.message.message_id;
 			props.author = await this.user(ctx.message.from, _instance)
-			props.channel.id = ctx.message.chat.id;
+			props.channel = await this.channel(ctx.message.chat, _instance)
 			props.content = ctx.message.text;
 			props.type = 'text';
 			props.route = ctx;
@@ -140,12 +140,38 @@ exports.user = async (user, _instance) => {
 			break;
 	}
 
-	if (_instance.users[props.id]) {
-		return _instance.users[props.id]
+	let _user = await _instance.getUser(props.id)
+	if (_user) {
+		return _user
 	}
-	
-	const userCreated = new User(props);
-	_instance.users[props.id] = userCreated;
-	
-	return userCreated
+	let newUser = new User(props)
+	return await _instance.getUser(props.id, newUser)
+}
+
+exports.channel = async (channel, _instance) => {
+	let props = {
+		context: {}
+	}
+
+	switch (_instance.type) {
+		case 'whatsapp':
+			props.id = channel.id.remote._serialized || channel.id.remote;
+			props.channel = channel;
+			break;
+		case 'discord':
+			props.id = channel.id;
+			props.channel = channel;
+			break;
+		case 'telegram':
+			props.id = channel.id;
+			props.channel = channel
+			break;
+	}
+
+	let _channel = await _instance.getChannel(props.id)
+	if (_channel) {
+		return _channel
+	}
+	let newChannel = new Channel(props)
+	return await _instance.getChannel(props.id, newChannel);
 }

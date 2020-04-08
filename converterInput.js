@@ -14,6 +14,9 @@ exports.message = async (ctx, _instance, repeat=true) => {
 			props.channel = await this.channel(ctx, _instance)
 			props.content = ctx.body;
 			props.type = ctx.type;
+			props.route = 'client';
+			props.sender = 'sendMessage';
+			props.preSend = props.channel.id;
 			props.message = ctx;
 			props.createdTimestamp = ctx.timestamp;
 			if (ctx.hasQuotedMsg && repeat) {

@@ -10,6 +10,8 @@ class Message {
 		this.message = props.message;
 		this.createdTimestamp = props.createdTimestamp;
 		this.sender = props.sender ? props.sender : 'reply';
+
+		this.preSend = props.preSend ? props.preSend : null;
 		
 		if (props.quotedMessage) {
 			this.quotedMessage = props.quotedMessage
@@ -22,6 +24,14 @@ class Message {
 	}
 	
 	send = (content, options) => {
+		
+		if (this.preSend) {
+			if (this.route && typeof this.route === 'string') {
+				return this.message[this.route][this.sender](this.preSend, content)
+			} else if (this.route && typeof this.route === 'object') {
+				return this.route[this.sender](this.preSend, content)
+			}
+		}
 		
 		if (this.route && typeof this.route === 'string') {
 			return this.message[this.route][this.sender](content)

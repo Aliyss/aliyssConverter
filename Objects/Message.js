@@ -5,10 +5,13 @@ class Message {
 		this.id = props.id;
 		this.author = props.author;
 		this.channel = props.channel;
+		this.channelGroup = props.channelGroup;
 		this.content = props.content;
 		this.type = props.type;
 		this.message = props.message;
 		this.createdTimestamp = props.createdTimestamp;
+		this.layout = props.layout
+		
 		this.sender = props.sender ? props.sender : 'reply';
 
 		this.preSend = props.preSend ? props.preSend : null;

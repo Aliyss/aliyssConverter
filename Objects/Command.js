@@ -2,25 +2,25 @@ const Message = require('./Message')
 
 class Command extends Message {
 
-	constructor(_msg, _instance) {
+	constructor(_msg) {
 		super(_msg);
 		
 		this.content = _msg.content;
 		
-		this.prefixes = (_instance.layout && _instance.layout.prefixes)
-			? _instance.layout.prefixes : [`${_instance.name}`];
-		this.splitters = (_instance.layout && _instance.layout.splitters)
-			? _instance.layout.splitters : [' '];
-		this.suffixes = (_instance.layout && _instance.layout.suffixes)
-			? _instance.layout.suffixes : [];
-		this.smartsplit = (_instance.layout && _instance.layout.smartsplit)
-			? _instance.layout.smartsplit : false
+		this.prefixes = (_msg.layout && _msg.layout.prefixes)
+			? _msg.layout.prefixes : [`aliyss`];
+		this.splitters = (_msg.layout && _msg.layout.splitters)
+			? _msg.layout.splitters : [' '];
+		this.suffixes = (_msg.layout && _msg.layout.suffixes)
+			? _msg.layout.suffixes : [];
+		this.smartsplit = (_msg.layout && _msg.layout.smartsplit)
+			? _msg.layout.smartsplit : false
 		
 		this.cleanContent = this.getCleanContent();
 		
-		this.isCommand = !!this.cleanContent;
+		this.isPrefixed = !!this.cleanContent;
 		
-		if (this.isCommand) {
+		if (this.isPrefixed) {
 			this.arrayContent = this.getArrayContent();
 		}
 		

@@ -2,13 +2,14 @@ const User = require('./User')
 
 class Member extends User {
 
-	constructor(_member) {
-		super(_member.user);
+	constructor(props) {
+		super(props.user);
 		
-		this.roles = _member.roles
-		this.deleted = _member.deleted
-		this.nickname = _member.nickname
-		this.member = _member
+		this.roles = props.roles
+		this.deleted = props.deleted
+		this.nickname = props.nickname
+		
+		this.member = props
 	}
 	
 }

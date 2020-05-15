@@ -9,6 +9,8 @@ exports.user = (props) => {
 	props.id = user.id._serialized;
 	props.bot = false;
 	props.author = user;
+	props.fullname = user.name
+	props.cleanname = user.name
 	props.context.username = user.shortName || user.name
 	
 	return props
@@ -29,7 +31,7 @@ exports.channel = async (props) => {
 }
 
 exports.userByChannelGroup = async (query, { channelGroup }, _instance) => {
-
+	
 	const Unzalgo = require("unzalgo");
 
 	const tempMembers = await channelGroup.participants
@@ -57,9 +59,16 @@ exports.userByChannelGroup = async (query, { channelGroup }, _instance) => {
 	} else if (members.find(value => value.id._serialized.startsWith(query.trim()))) {
 		member = members.find(value => value.id._serialized.startsWith(query.trim()))
 	}
-
-	member.user.cleanName = Unzalgo.clean(member.user.name ? member.user.name : '');
-
+	
+	member.roles = []
+	
+	if (member.isAdmin) {
+		member.roles.push('Admin')
+	}
+	if (member.isSuperAdmin) {
+		member.roles.push('SuperAdmin')
+	}
+	
 	return { ...member }
 }
 

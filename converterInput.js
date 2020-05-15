@@ -80,6 +80,16 @@ exports.message = async (ctx, _instance, repeat=true) => {
 		case 'keybase':
 			props.id = ctx.id;
 			break;
+		case 'rest':
+			props.id = ctx.body.message.id
+			props.content = '> sendtoWhatsapp ' + ctx.body.message.content
+			props.message = ctx.body.message
+			props.author = await this.user(ctx.body.author, _instance)
+			props.channel = await this.channel(ctx.body.channel, _instance)
+			props.route = ctx.resultMain;
+			props.preSend = 200;
+			props.sender = 'json'
+			break;
 	}
 
 	props.layout = layers.layouts(props, _instance)
@@ -100,7 +110,7 @@ exports.convertDefault = (content, _instance, cmd) => {
 	let embed = false;
 	if (cmd.message && cmd.message.guild) {
 		let permEmbed = cmd.message.guild.me.permissionsIn(cmd.message.channel).serialize()['EMBED_LINKS']
-		if ((cmd.message.author.presence.clientStatus.mobile && cmd.message.author.presence.clientStatus.mobile === 'online')) {
+		if (cmd.message.author.presence.clientStatus && (cmd.message.author.presence.clientStatus.mobile && cmd.message.author.presence.clientStatus.mobile === 'online')) {
 			if (cmd.message.author.presence.clientStatus.desktop) {
 				if (cmd.message.author.presence.clientStatus.desktop !== 'online') {
 					embed = 'mobile'
@@ -157,15 +167,9 @@ exports.user = async (user, _instance) => {
 		_user: user
 	})
 
-	let _user = await _instance.getUser(props.id)
+	let _user = await _instance.getUser(props.id, new User(props))
 	
-	if (_user) {
-		_user.user = user
-		return _user
-	}
-	
-	let newUser = new User(props)
-	return await _instance.getUser(props.id, newUser)
+	return _user
 }
 
 exports.member = async (member, _instance) => {

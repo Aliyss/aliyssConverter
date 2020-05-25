@@ -35,6 +35,11 @@ exports.userByChannelGroup = async (query, { channelGroup }) => {
 	let _roles = {
 		roles: []
 	}
+	
+	if (!member) {
+		throw new Error('User not found')
+	}
+	
 	for (let i = 0; i < member._roles.length; i++) {
 		_roles.roles.push(`<@&${member._roles[i]}>`)
 	}

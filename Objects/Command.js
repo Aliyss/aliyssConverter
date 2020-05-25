@@ -6,6 +6,7 @@ class Command extends Message {
 		super(_msg);
 		
 		this.content = _msg.content;
+		this.reaction = _msg.reaction;
 		
 		this.prefixes = (_msg.layout && _msg.layout.prefixes)
 			? _msg.layout.prefixes : [`aliyss`];
@@ -22,6 +23,8 @@ class Command extends Message {
 		
 		if (this.isPrefixed) {
 			this.arrayContent = this.getArrayContent();
+		} else if (this.reaction && this.reaction.tag) {
+			this.content = this.reaction.tag + this.splitters[0] + this.content
 		}
 		
 	}
@@ -55,7 +58,8 @@ class Command extends Message {
 	getArrayContent = (content= this.cleanContent,
 					   splitters = this.splitters,
 					   suffix = this.suffix,
-					   smartsplit = this.smartsplit) => {
+					   smartsplit = this.smartsplit,
+					   reaction = this.reaction) => {
 		
 		if (!content) {
 			return null;
@@ -76,6 +80,7 @@ class Command extends Message {
 		this.splitter = splitters[0]
 		return content.split(content.startsWith(splitters[0]))
 	}
+	
 }
 
 module.exports = Command;

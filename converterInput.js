@@ -1,8 +1,8 @@
 const { Message, Command, User, Member, Channel, ChannelGroup } = require("./Objects")
 const converterHandler = require("./converterHandler");
-const layers = require('./modules/layers')
+const { layers, emojis } = require('./modules')
 
-exports.message = async (ctx, _instance, repeat=true) => {
+exports.message = async (ctx, _instance, type, repeat=true) => {
 	
 	let props = {
 		author: {},
@@ -30,6 +30,12 @@ exports.message = async (ctx, _instance, repeat=true) => {
 			}
 			break;
 		case 'discord':
+			if (type === 'reaction') {
+				let reactMsg = ctx
+				ctx = { ...ctx.message }
+				reactMsg.tag = emojis.getTag(reactMsg._emoji)
+				props.reaction = reactMsg
+			}
 			props.id = ctx.id;
 			props.author = await this.user(ctx.author, _instance)
 			props.channel = await this.channel(ctx.channel, _instance)
@@ -98,8 +104,8 @@ exports.message = async (ctx, _instance, repeat=true) => {
 	
 }
 
-exports.command = async (msg, _instance) => {
-	let message = await this.message(msg, _instance)
+exports.command = async (msg, _instance, type='message') => {
+	let message = await this.message(msg, _instance, type)
 	return new Command(message);
 }
 
@@ -110,7 +116,7 @@ exports.convertDefault = (content, _instance, cmd) => {
 	let embed = false;
 	if (cmd.message && cmd.message.guild) {
 		let permEmbed = cmd.message.guild.me.permissionsIn(cmd.message.channel).serialize()['EMBED_LINKS']
-		if (cmd.message.author.presence.clientStatus && (cmd.message.author.presence.clientStatus.mobile && cmd.message.author.presence.clientStatus.mobile === 'online')) {
+		if (permEmbed && cmd.message.author.presence.clientStatus && (cmd.message.author.presence.clientStatus.mobile && cmd.message.author.presence.clientStatus.mobile === 'online')) {
 			if (cmd.message.author.presence.clientStatus.desktop) {
 				if (cmd.message.author.presence.clientStatus.desktop !== 'online') {
 					embed = 'mobile'

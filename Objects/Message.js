@@ -23,6 +23,10 @@ class Message {
 		if (props.route) {
 			this.route = props.route;
 		}
+
+		if (props.reaction) {
+			this.reaction = props.reaction;
+		}
 		
 	}
 	

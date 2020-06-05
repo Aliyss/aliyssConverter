@@ -3,16 +3,17 @@ exports.message = (props) => {
 	
 }
 
-exports.user = (props) => {
+exports.user = async (props, _instance) => {
 	let user = props._user
-	
+
 	props.id = user.id._serialized;
 	props.bot = false;
 	props.author = user;
 	props.fullname = user.name
 	props.cleanname = user.name
 	props.context.username = user.shortName || user.name
-	
+	props.avatarUrl = await _instance.client.getProfilePicUrl(props.id)
+
 	return props
 }
 

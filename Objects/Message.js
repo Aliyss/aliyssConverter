@@ -34,16 +34,20 @@ class Message {
 		
 		if (this.preSend) {
 			if (this.route && typeof this.route === 'string') {
-				return this.message[this.route][this.sender](this.preSend, content)
+				return this.message[this.route][this.sender](this.preSend, content, options)
 			} else if (this.route && typeof this.route === 'object') {
 				return this.route[this.sender](this.preSend, content)
 			}
 		}
 		
 		if (this.route && typeof this.route === 'string') {
-			return this.message[this.route][this.sender](content)
+			return this.message[this.route][this.sender](content, options)
 		} else if (this.route && typeof this.route === 'object') {
 			return this.route[this.sender](content, options)
+		}
+		
+		if (options) {
+			return this.message[this.sender](content, options)
 		}
 		
 		return this.message[this.sender](content)

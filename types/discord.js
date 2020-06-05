@@ -13,7 +13,7 @@ exports.user = (props) => {
 	props.fullname = user.username
 	props.cleanname = Unzalgo.clean(user.username);
 	props.context.username = user.username
-	props.avatarUrl = user.displayAvatarURL()
+	props.avatarUrl = user.displayAvatarURL() + "?size=2048"
 
 	return props
 }
@@ -41,7 +41,7 @@ exports.userByChannelGroup = async (query, { channelGroup }) => {
 	}
 	
 	for (let i = 0; i < member._roles.length; i++) {
-		_roles.roles.push(`<@&${member._roles[i]}>`)
+		_roles.roles.push((await channelGroup.roles.fetch(member._roles[i])))
 	}
 	
 	return { ...member, ..._roles }

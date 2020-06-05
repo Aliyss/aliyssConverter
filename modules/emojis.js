@@ -1,7 +1,7 @@
 
 exports.getTag = (emoji) => {
 	switch (emoji.name) {
-		case '☀️':
+		case '☀':
 		case '⚡':
 		case '❄':
 		case '☔':
@@ -20,8 +20,7 @@ exports.getTag = (emoji) => {
 		case '🌥':
 		case '🌫':
 		case '🌦':
-		case '☂️':
-		case '❄️️':
+		case '☂':
 			return 'weather'
 		case '😷':
 		case '🤢':

@@ -109,7 +109,7 @@ exports.command = async (msg, _instance, type='message') => {
 	return new Command(message);
 }
 
-exports.convertDefault = (content, _instance, cmd) => {
+exports.convertDefault = async (content, _instance, cmd) => {
 	if (!_instance.converterHandler) {
 		_instance.converterHandler = this.addConverterHandler(_instance.type)
 	}
@@ -140,12 +140,12 @@ exports.convertDefault = (content, _instance, cmd) => {
 	
 	switch (raaaType) {
 		case 'mobile':
-			return converterHandler.embedToText2(content);
+			return await converterHandler.embedToText2(content);
 		case 'text':
-			return converterHandler.embedToText(content);
+			return await converterHandler.embedToText(content);
 		case 'default':
 		default:
-			return content;
+			return { content };
 	}
 }
 
@@ -168,10 +168,10 @@ exports.addConverterHandler = (_instanceType) => {
 
 exports.user = async (user, _instance) => {
 	
-	let props = require(`./types/${_instance.type}.js`).user({
+	let props = await require(`./types/${_instance.type}.js`).user({
 		context: {},
 		_user: user
-	})
+	}, _instance)
 
 	let _user = await _instance.getUser(props.id, new User(props))
 	

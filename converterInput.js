@@ -223,10 +223,8 @@ exports.channelGroup = async (channelGroup, _instance) => {
 			break;
 		case 'telegram':
 			return null;
-			break;
 		case 'keybase':
 			return null;
-			break;
 	}
 
 	if (!props) {
